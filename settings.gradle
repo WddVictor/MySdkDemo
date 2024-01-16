@@ -10,6 +10,21 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven {
+            def githubProperties = new File(rootDir, 'github.properties')
+            if (githubProperties.exists()) {
+                def properties = new Properties()
+                githubProperties.withInputStream { properties.load(it) }
+
+                url 'https://maven.pkg.github.com/WddVictor/MySdkDemo' // 私有仓库的URL
+                credentials {
+                    username properties['gpr.usr'] as String
+                    password properties['gpr.key'] as String
+                }
+            } else {
+                throw new GradleException("github.properties could not be found in the root directory.")
+            }
+        }
     }
 }
 rootProject.name = "My Sdk Demo"

@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'maven-publish'
 }
 
 android {
@@ -8,7 +10,7 @@ android {
     compileSdk 33
 
     defaultConfig {
-        minSdk 33
+        minSdk 26
         targetSdk 33
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -30,11 +32,42 @@ android {
     }
 }
 
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId "com.example"
+            artifactId "mysdk"
+            version "0.0.4"
+
+            afterEvaluate {
+                from components.release
+            }
+        }
+    }
+    repositories {
+        maven {
+            def propsFile = rootProject.file('github.properties')
+            def props = new Properties()
+            props.load(new FileInputStream(propsFile))
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/WddVictor/MySdkDemo")
+            credentials {
+                username = props['gpr.usr'] ?: System.getenv("GPR_USER")
+                password = props['gpr.key'] ?: System.getenv("GPR_API_KEY")
+            }
+        }
+    }
+}
+
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
+
+    implementation 'com.google.dagger:dagger:2.44.2'
+    kapt 'com.google.dagger:dagger-compiler:2.44.2'
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
